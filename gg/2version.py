@@ -6,12 +6,12 @@ from colorama import Fore, Style, init
 # Инициализация colorama для корректной работы в Windows
 init(autoreset=True)
 
-# Ваши данные (API ID и API Hash)
-api_id = '27165396'
-api_hash = 'b5f4ce290449f9cfbe129a25105ac1d9'
-
-# ID целевой группы для отправки вакансий
-TARGET_GROUP_ID = -1002375959241
+# Получаем данные из переменных окружения
+api_id = os.getenv('API_ID')  # Ваш API ID
+api_hash = os.getenv('API_HASH')  # Ваш API Hash
+target_group_id = os.getenv('TARGET_GROUP_ID')  # ID целевой группы
+phone_number = os.getenv('PHONE_NUMBER')  # Номер телефона для авторизации
+password = os.getenv('PASSWORD')  # Пароль для двухфакторной аутентификации (если требуется)
 
 # Время в секундах, после которого вакансия может быть обработана повторно (например, 2 часа)
 EXPIRATION_TIME = 2 * 60 * 60  
@@ -96,13 +96,14 @@ async def message_handler(event):
                 sender_info = f"[@{sender.username}](https://t.me/{sender.username})"
             elif hasattr(sender, 'id'):  # Если есть только ID
                 sender_info = f"[Ссылка на отправителя](tg://user?id={sender.id})"
-            else:sender_info = "Отправитель неизвестен"
+            else:
+                sender_info = "Отправитель неизвестен"
             
             response_text = f"{message_text}\n\nИсточник: {sender_info}"
             
             # Отправляем сообщение в целевую группу
-            await client.send_message(TARGET_GROUP_ID, response_text, parse_mode='markdown')
-            print(Fore.GREEN + f"Сообщение отправлено в группу {TARGET_GROUP_ID}")
+            await client.send_message(target_group_id, response_text, parse_mode='markdown')
+            print(Fore.GREEN + f"Сообщение отправлено в группу {target_group_id}")
             
             # Обновляем время отправки вакансии
             sent_messages_dict[message_text] = current_time
@@ -113,5 +114,5 @@ async def message_handler(event):
 
 # Запуск клиента
 print("Мониторинг вакансий запущен.")
-client.start()
+client.start(phone=phone_number, password=password)  # Если нужно авторизоваться с телефоном и паролем
 client.run_until_disconnected()
