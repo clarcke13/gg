@@ -9,9 +9,7 @@ init(autoreset=True)
 # Получаем данные из переменных окружения
 api_id = os.getenv('API_ID')  # Ваш API ID
 api_hash = os.getenv('API_HASH')  # Ваш API Hash
-target_group_id = os.getenv('TARGET_GROUP_ID')  # ID целевой группы
-phone_number = os.getenv('PHONE_NUMBER')  # Номер телефона для авторизации
-password = os.getenv('PASSWORD')  # Пароль для двухфакторной аутентификации (если требуется)
+TARGET_GROUP_ID = os.getenv('TARGET_GROUP_ID')  # ID целевой группы
 
 # Время в секундах, после которого вакансия может быть обработана повторно (например, 2 часа)
 EXPIRATION_TIME = 2 * 60 * 60  
@@ -102,8 +100,8 @@ async def message_handler(event):
             response_text = f"{message_text}\n\nИсточник: {sender_info}"
             
             # Отправляем сообщение в целевую группу
-            await client.send_message(target_group_id, response_text, parse_mode='markdown')
-            print(Fore.GREEN + f"Сообщение отправлено в группу {target_group_id}")
+            await client.send_message(TARGET_GROUP_ID, response_text, parse_mode='markdown')
+            print(Fore.GREEN + f"Сообщение отправлено в группу {TARGET_GROUP_ID}")
             
             # Обновляем время отправки вакансии
             sent_messages_dict[message_text] = current_time
@@ -114,5 +112,5 @@ async def message_handler(event):
 
 # Запуск клиента
 print("Мониторинг вакансий запущен.")
-client.start(phone=phone_number, password=password)  # Если нужно авторизоваться с телефоном и паролем
+client.start()
 client.run_until_disconnected()
